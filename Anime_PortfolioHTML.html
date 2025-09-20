@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melvin's Portfolio - Choose Your Adventure</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Anime_PortfolioCSS.css">
+</head>
+<body>
+    <nav id="navbar" class="navbar">
+        <div class="nav-content">
+            <div class="logo">Melvin's Portfolio</div>
+            <div class="nav-links">
+                <button id="themeToggle" class="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="homeBtn" class="nav-btn active">Home</button>
+            </div>
+        </div>
+    </nav>
+
+    <section id="landing" class="landing-page">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="main-title">Welcome to Melvin's Portfolio</h1>
+                <h2 class="subtitle">Choose Your Adventure<span class="typing-cursor"></span></h2>                <p class="description">Experience my work through your lens</p>
+                
+                <div class="persona-cards">
+                    <div class="persona-card" data-persona="recruiter">
+                        <div class="card-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3>I'm a Recruiter</h3>
+                        <p>Fast overview of skills, impact, and achievements</p>
+                        <div class="card-overlay">
+                            <span>Enter</span>
+                        </div>
+                    </div>
+                    
+                    <div class="persona-card" data-persona="developer">
+                        <div class="card-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3>I'm a Fellow Developer</h3>
+                        <p>Technical deep dives, code snippets, and architecture</p>
+                        <div class="card-overlay">
+                            <span>Enter</span>
+                        </div>
+                    </div>
+                    
+                    <div class="persona-card" data-persona="curious">
+                        <div class="card-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <h3>I'm Just Curious</h3>
+                        <p>Interactive demos, fun facts, and explorations</p>
+                        <div class="card-overlay">
+                            <span>Enter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-animation">
+            <div class="floating-elements">
+                <div class="float-element">💻</div>
+                <div class="float-element">🚀</div>
+                <div class="float-element">⚡</div>
+                <div class="float-element">🎯</div>
+                <div class="float-element">💡</div>
+                <div class="float-element">🔧</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="recruiter-path" class="path-section">
+        <div class="container">
+            <div class="path-hero">
+                <div class="hero-text">
+                    <h1>Melvin Thoompunkal</h1>
+                    <h2>Computer Science Sophomore | SWE • ML • Data Analysis</h2>
+                    <p>Passionate about building scalable solutions and exploring cutting-edge technology</p>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">3.22</span>
+                        <span class="stat-label">GPA</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">5+</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">2</span>
+                        <span class="stat-label">Languages</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="highlights-section">
+                <h3>Key Achievements</h3>
+                <div class="highlight-grid">
+                    <div class="highlight-item">
+                        <i class="fas fa-trophy"></i>
+                        <div>
+                            <h4>Dean's List</h4>
+                            <p>Consistent academic excellence</p>
+                        </div>
+                    </div>
+                    <div class="highlight-item">
+                        <i class="fas fa-coins"></i>
+                        <div>
+                            <h4>Blockchain Innovation</h4>
+                            <p>Developed alternative credit scoring system using blockchain</p>
+                        </div>
+                    </div>
+                    <div class="highlight-item">
+                        <i class="fas fa-chart-line"></i>
+                        <div>
+                            <h4>Freelance Success</h4>
+                            <p>Built data analysis tools for multiple clients</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="projects-snapshot">
+                <h3>Project Impact</h3>
+                <div class="project-cards">
+                    <div class="project-card">
+                        <h4>Blockchain Credit Score System</h4>
+                        <p>Demonstrated fintech potential beyond traditional credit scoring</p>
+                        <div class="project-tags">
+                            <span>Python</span>
+                            <span>Blockchain</span>
+                            <span>FinTech</span>
+                            <span>Brownie contracts</span>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <h4>Java Socket Chat Application</h4>
+                        <p>Real-time communication system with multi-threading</p>
+                        <div class="project-tags">
+                            <span>Java</span>
+                            <span>Networking</span>
+                            <span>Multithreading</span>
+                            <span>Sockets</span>
+                        </div>
+                    </div>
+                    <div class="project-card">
+                        <h4>Stock Market Analysis Tool</h4>
+                        <p>Interactive dashboard for financial data visualization</p>
+                        <div class="project-tags">
+                            <span>Python</span>
+                            <span>Data Analysis</span>
+                            <span>Visualization</span>
+                            <span>Pandas</span>
+                            <span>Matplotlib</span> 
+                            <span>Yfinance</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-section">
+                <a href="MelvinThoompunkal_ProfessionalResume.pdf" download class="download-resume">
+                    <i class="fas fa-download"></i>
+                    Download Resume
+                </a>
+                <div class="contact-links">
+                    <a href="mailto:melvintthoompunkal@gmail.com"><i class="fas fa-envelope"></i></a>
+                    <a href="https://linkedin.com/in/melvin-thoompunkal/"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/melvinthoompunkal"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="developer-path" class="path-section">
+        <div class="container">
+            <div class="dev-header">
+                <h1>Technical Deep Dive</h1>
+                <p>Explore the code, architecture, and problem-solving behind each project</p>
+            </div>
+
+            <div class="projects-gallery">
+                <div class="project-detailed">
+                    <div class="project-header" data-project="blockchain">
+                        <h3>Blockchain Credit Score System</h3>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            <p>Alternative credit scoring using blockchain technology for transparency and immutability. Check out the <a href="https://github.com/melvinthoompunkal/Decentralized_Credit_Score" target="_blank">code on GitHub</a>.</p>
+                        </div>
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <h4>Core Algorithm</h4>
+                                <button class="copy-btn" onclick="copyCode(this)" title="Copy Code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code># Credit Score Calculation
+def calculate_credit_score(transactions):
+    score = 750  # Base score
+    for tx in transactions:
+        if tx.type == 'payment':
+            score += tx.amount * 0.01
+        elif tx.type == 'default':
+            score -= tx.amount * 0.05
+    return min(max(score, 300), 850)</code></pre>
+                        </div>
+                        <div class="architecture-diagram">
+                            <div class="arch-box">User</div>
+                            <div class="arch-arrow">→</div>
+                            <div class="arch-box">API</div>
+                            <div class="arch-arrow">→</div>
+                            <div class="arch-box">Blockchain</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-detailed">
+                    <div class="project-header" data-project="chat">
+                        <h3>Java Socket Chat Application</h3>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            <p>Multi-threaded chat server supporting concurrent connections and real-time messaging. See the full <a href="https://github.com/melvinthoompunkal/Java-Chat-Application-Multi-threaded" target="_blank">repository on GitHub</a>.</p>
+                        </div>
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <h4>Multi-threading Implementation</h4>
+                                <button class="copy-btn" onclick="copyCode(this)" title="Copy Code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>// Client Handler Thread
+public class ClientHandler extends Thread {
+    private Socket socket;
+    private BufferedReader in;
+    private PrintWriter out;
+    
+    public void run() {
+        while (true) {
+            String message = in.readLine();
+            broadcastMessage(message);
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-detailed">
+                    <div class="project-header" data-project="stocks">
+                        <h3>Stock Market Analysis Tool</h3>
+                        <i class="fas fa-chevron-down toggle-icon"></i>
+                    </div>
+                    <div class="project-content">
+                        <div class="project-description">
+                            <p>Interactive dashboard for financial data visualization with real-time updates. Explore the <a href="https://github.com/melvinthoompunkal/Projects/tree/main/StockAnalyzer" target="_blank">project repository</a>.</p>
+                        </div>
+                        <div class="code-demo">
+                            <div class="code-header">
+                                <h4>Stock Market Analysis Algorithms</h4>
+                                <button class="copy-btn" onclick="copyCode(this)" title="Copy Code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <pre><code>def RSI(ticker, start_date, end_date, window=14):
+    ticker_data = yf.Ticker(ticker)
+    data = ticker_data.history(start=start_date, end=end_date)
+
+    close = data["Close"]
+
+    # Calculate price changes
+    delta = close.diff()
+
+    # Separate gains and losses
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    # Calculate average gain/loss
+    avg_gain = gain.rolling(window=window).mean()
+    avg_loss = loss.rolling(window=window).mean()
+
+    rs = avg_gain / avg_loss.replace(0, 1e-10)
+    rsi = 100 - (100 / (1 + rs))
+    rsi.name = f"RSI-{window}"
+
+    # Drop NaN values/Cleaning Data
+    rsi = rsi.dropna()
+    rsi.index = rsi.index.date
+
+    # Index is the date, and the header is the bottom
+    return rsi.to_string(index=False, header=False)</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tech-stack">
+                <h3>Technology Stack</h3>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <i class="fab fa-python"></i>
+                        <span>Python</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-java"></i>
+                        <span>Java</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-flask"></i>
+                        <span>Flask</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-database"></i>
+                        <span>SQL</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-js-square"></i>
+                        <span>JavaScript</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-git-alt"></i>
+                        <span>Git</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fab fa-js"></i>
+                        <span>Javascript</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-table"></i>
+                        <span>Pandas</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Matplotlib</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-calculator"></i>
+                        <span>Numpy</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-terminal"></i>
+                        <span>C#</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-link"></i>
+                        <span>Blockchain</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-section" style="margin-top: 4rem;">
+                <h3>View My GitHub Profile</h3>
+                <div class="contact-links">
+                    <a href="https://github.com/melvinthoompunkal" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="curious-path" class="path-section">
+        <div class="container">
+            <div class="curious-header">
+                <h1>Interactive Playground</h1>
+                <p>Explore, play, and discover through interactive demos</p>
+            </div>
+
+            <div class="demo-section">
+                <div class="demo-item">
+                    <h3>Blockchain Simulator</h3>
+                    <div class="blockchain-demo">
+                        <div class="demo-controls">
+                            <input type="text" id="transactionInput" placeholder="Add a transaction...">
+                            <button id="addTransaction">Add Block</button>
+                        </div>
+                        <div class="blockchain-visual" id="blockchainVisual">
+                            <div class="block genesis">
+                                <h4>Genesis Block</h4>
+                                <p>Hash: 000abc...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-item">
+                    <h3>Stock Tracker Mini</h3>
+                    <div class="stock-demo-mini">
+                        <div class="demo-controls">
+                            <input type="text" id="stockSymbol" placeholder="Enter symbol (e.g., AAPL)">
+                            <button id="trackStock">Track</button>
+                        </div>
+                        <div class="stock-display" id="stockDisplay">
+                            <div class="stock-card">
+                                <h4 id="stockName">Select a stock</h4>
+                                <div class="stock-price" id="stockPrice">$0.00</div>
+                                <div class="stock-change" id="stockChange">0.00%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-item">
+                    <h3>Chat Simulator</h3>
+                    <div class="chat-demo">
+                        <div class="chat-messages" id="chatMessages">
+                            <div class="message user1">
+                                <span class="username">Alice:</span>
+                                <span class="text">Hey everyone!</span>
+                            </div>
+                            <div class="message user2">
+                                <span class="username">Bob:</span>
+                                <span class="text">Hello Alice!</span>
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Type a message...">
+                            <button id="sendMessage">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="fun-facts">
+                <h3>Fun Facts About Me</h3>
+                <div class="facts-timeline">
+                    <div class="fact-item">
+                        <div class="fact-icon">🎓</div>
+                        <div class="fact-content">
+                            <h4>2023</h4>
+                            <p>Started Computer Science journey</p>
+                        </div>
+                    </div>
+                    <div class="fact-item">
+                        <div class="fact-icon">💻</div>
+                        <div class="fact-content">
+                            <h4>2024</h4>
+                            <p>Built first blockchain application</p>
+                        </div>
+                    </div>
+                    <div class="fact-item">
+                        <div class="fact-icon">🚀</div>
+                        <div class="fact-content">
+                            <h4>Now</h4>
+                            <p>Exploring AI and Machine Learning</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="mailto:melvintthoompunkal@gmail.com">Email</a>
+                    <a href="https://linkedin.com/in/melvin-thoompunkal/">LinkedIn</a>
+                    <a href="https://github.com/melvinthoompunkal">GitHub</a>
+                </div>
+                <p>&copy;2025 Melvin Thoompunkal</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="Anime_PortfolioJS.js"></script>
+</body>
+</html>
