@@ -1,41 +1,42 @@
-# 🌐 Animated Portfolio Website
+# Melvin Thoompunkal - Portfolio
 
-This is my personal **portfolio website**, built with **HTML, CSS, and JavaScript**, featuring smooth animations and interactive elements.  
-The site showcases my projects, skills, and background in an engaging and user-friendly way.  
+Personal portfolio for Melvin Thoompunkal: real-time data systems and applied AI. Built as a fast, dependency-free static site.
 
----
+Live at https://melvinthoompunkal.github.io/Website_Portfolio/
 
-## ✨ Features
-- Responsive design for desktop and mobile
-- Smooth CSS & JavaScript animations
-- Interactive navigation
-- Clean and modern layout
-- Easy to update with new projects or sections
+## Stack
 
----
+- Hand-written HTML5, CSS3, and vanilla JavaScript
+- Self-hosted fonts (Space Grotesk, Inter Tight, JetBrains Mono) via Fontsource
+- Inline SVG icons from Tabler Icons
+- No frameworks, no build step, no CDN dependencies
 
-## 🛠️ Technologies Used
-- **HTML5** for structure  
-- **CSS3** (with animations & transitions) for styling  
-- **JavaScript (ES6)** for interactivity  
+## Structure
 
----
+- `index.html` - single page: hero, about, experience, projects, skills, contact
+- `styles.css` - design tokens, dual themes (dark default), responsive layout
+- `main.js` - theme toggle, scroll reveals, nav highlighting, hero event-stream canvas
+- `Melvin-Thoompunkal-Resume.pdf` - current resume download
 
-## 🚀 Deployment
-The site is hosted with **GitHub Pages**.  
-You can view it live here:  
-👉 [My Portfolio](https://melvinthoompunkal.github.io/Website_Portfolio/)  
+## Local development
 
+Open `index.html` in a browser, or serve the folder:
 
----
+```bash
+python -m http.server 8000
+```
 
+## Deployment
 
-## 📬 Contact
-If you'd like to connect, feel free to reach out:  
-- **Email:** melvintthoompunkal@gmail.com
-- **LinkedIn:** https://www.linkedin.com/in/melvin-thoompunkal/
-- **GitHub:** https://github.com/melvinthoompunkal  
+Push to `main` and GitHub Pages serves the repository root automatically.
 
----
+## Accessibility and performance
 
-⭐ Don’t forget to **star** this repo if you like it!
+- WCAG AA contrast in both themes, visible focus states, skip link, reduced-motion support
+- Static assets only, self-hosted subset fonts, target Lighthouse 90+ on mobile
+
+## Contact
+
+- Email: melvintthoompunkal@gmail.com
+- LinkedIn: https://linkedin.com/in/melvin-thoompunkal/
+- GitHub: https://github.com/melvinthoompunkal
