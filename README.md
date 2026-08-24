@@ -16,7 +16,7 @@ Live at https://melvinthoompunkal.github.io/Website_Portfolio/
 - `index.html` - landing with three persona paths plus the path sections
 - `styles.css` - design tokens, dual themes, retro easter-egg theme, responsive layout
 - `main.js` - hash router, scroll reveals, typewriter, parallax, counters, blockchain / stock / chat demos, Konami code
-- `Melvin-Thoompunkal-Resume.pdf` - current resume download
+- `Melvin-Thoompunkal-Resume.pdf` - current resume download (stable filename: replace the file, links never change)
 
 ### Paths
 

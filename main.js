@@ -109,22 +109,31 @@
     /* ---------- rotating keyword typewriter ---------- */
     const keywordEl = $("#rotatingKeyword");
     const KEYWORDS = ["Real-Time Systems", "Applied AI", "Data Engineering", "Machine Learning", "Blockchain", "Full Stack"];
+    const typer = { gen: 0 };
     function typeText(el, text, speed = 65) {
-        el.textContent = "";
+        const myGen = ++typer.gen;
         let i = 0;
         (function tick() {
-            if (i < text.length) {
-                el.textContent += text.charAt(i++);
-                setTimeout(tick, speed);
-            }
+            if (myGen !== typer.gen) return;
+            if (document.hidden) { setTimeout(tick, 400); return; }
+            el.textContent = text.slice(0, ++i);
+            if (i < text.length) setTimeout(tick, speed);
         })();
     }
     function rotateKeywords() {
         let idx = 1;
         setInterval(() => {
-            typeText(keywordEl, KEYWORDS[idx]);
-            idx = (idx + 1) % KEYWORDS.length;
+            if (!document.hidden) {
+                typeText(keywordEl, KEYWORDS[idx]);
+                idx = (idx + 1) % KEYWORDS.length;
+            }
         }, 3400);
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden) {
+                typeText(keywordEl, KEYWORDS[idx]);
+                idx = (idx + 1) % KEYWORDS.length;
+            }
+        });
     }
     if (!reducedMotion && keywordEl) rotateKeywords();
 
