@@ -1,22 +1,30 @@
-# Melvin Thoompunkal - Portfolio
+# Melvin Thoompunkal: Portfolio
 
-Personal portfolio for Melvin Thoompunkal: real-time data systems and applied AI. Built as a fast, dependency-free static site.
+Interactive portfolio for Melvin Thoompunkal: real-time data systems and applied AI. Visitors pick a path: a recruiter tour, a developer deep dive, or an in-browser playground with live demos.
 
 Live at https://melvinthoompunkal.github.io/Website_Portfolio/
 
 ## Stack
 
-- Hand-written HTML5, CSS3, and vanilla JavaScript
+- Hand-written HTML5, CSS3, and vanilla JavaScript. No frameworks, no build step, no CDN dependencies
 - Self-hosted fonts (Space Grotesk, Inter Tight, JetBrains Mono) via Fontsource
-- Inline SVG icons from Tabler Icons
-- No frameworks, no build step, no CDN dependencies
+- Inline SVG icons composed from stroke primitives
+- Single amber accent on neutral graphite, dual themes (dark default)
 
 ## Structure
 
-- `index.html` - single page: hero, about, experience, projects, skills, contact
-- `styles.css` - design tokens, dual themes (dark default), responsive layout
-- `main.js` - theme toggle, scroll reveals, nav highlighting, hero event-stream canvas
+- `index.html` - landing with three persona paths plus the path sections
+- `styles.css` - design tokens, dual themes, retro easter-egg theme, responsive layout
+- `main.js` - hash router, scroll reveals, typewriter, parallax, counters, blockchain / stock / chat demos, Konami code
 - `Melvin-Thoompunkal-Resume.pdf` - current resume download
+
+### Paths
+
+1. **Recruiter** (`#recruiter`) - animated stat counters, highlights, project snapshot, one-click resume
+2. **Developer** (`#developer`) - expandable project accordions with architecture flows and copyable code
+3. **Playground** (`#playground`) - blockchain simulator with real hash chaining, simulated stock tracker with sparkline, chat bot that knows the projects
+
+Hidden extra: the classic cheat code does something.
 
 ## Local development
 
@@ -30,10 +38,9 @@ python -m http.server 8000
 
 Push to `main` and GitHub Pages serves the repository root automatically.
 
-## Accessibility and performance
+## Accessibility
 
-- WCAG AA contrast in both themes, visible focus states, skip link, reduced-motion support
-- Static assets only, self-hosted subset fonts, target Lighthouse 90+ on mobile
+- WCAG AA contrast in both themes, visible focus states, reduced-motion support
 
 ## Contact
 
