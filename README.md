@@ -22,7 +22,7 @@ Live at https://melvinthoompunkal.github.io/Website_Portfolio/
 
 1. **Recruiter** (`#recruiter`) - animated stat counters, highlights, project snapshot, one-click resume
 2. **Developer** (`#developer`) - expandable project accordions with architecture flows and copyable code
-3. **Playground** (`#playground`) - blockchain simulator with real hash chaining, simulated stock tracker with sparkline, chat bot that knows the projects
+3. **Playground** (`#playground`) - five browser demos: a mini God View earth (simulated events on a draggable wireframe globe), a mini Graft scan (animated chunk-to-agent-to-feature pipeline), a blockchain simulator with real hash chaining, a simulated stock tracker with sparkline, and a chat bot that knows the projects
 
 Hidden extra: the classic cheat code does something.
 

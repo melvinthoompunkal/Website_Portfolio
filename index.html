@@ -90,7 +90,7 @@
                         <span class="pr-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="5"/><path d="M7 10v4M5 12h4"/><path d="M16 11h.01M18.5 13h.01"/></svg></span>
                         <span class="pr-body">
                             <span class="pr-title">Playground</span>
-                            <span class="pr-desc">Live demos: chain blocks, track a ticker, talk to my bot.</span>
+                            <span class="pr-desc">Live demos: spin a mini earth, run a repo scan, mine a chain.</span>
                         </span>
                         <span class="pr-arrow" aria-hidden="true">&rarr;</span>
                     </a>
@@ -338,10 +338,42 @@
                 <header class="path-hero reveal">
                     <p class="crumb"><a href="#home">Home</a> / Playground</p>
                     <h1>Poke at my projects</h1>
-                    <p class="path-lede">Three mini versions of things I've built. No setup, no backend. Everything runs in your browser.</p>
+                    <p class="path-lede">Five mini versions of things I've built. No setup, no backend. Everything runs in your browser.</p>
                 </header>
 
                 <div class="demo-grid">
+
+                    <article class="demo-card reveal" id="globeDemo">
+                        <header class="demo-head">
+                            <span class="demo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15.3 15.3 0 0 1 4 9a15.3 15.3 0 0 1 -4 9a15.3 15.3 0 0 1 -4 -9a15.3 15.3 0 0 1 4 -9z"/></svg></span>
+                            <div>
+                                <h2>Mini God View</h2>
+                                <p>The idea behind God View in one screen: global news, market, and weather events landing on a rotating earth. Drag to spin it.</p>
+                            </div>
+                        </header>
+                        <div class="globe-wrap">
+                            <canvas id="globeCanvas" aria-label="Rotating globe with simulated event blips"></canvas>
+                            <ul class="globe-feed" id="globeFeed" aria-live="polite"></ul>
+                        </div>
+                        <p class="demo-note">Simulated representation. Events are canned samples, not live feeds.</p>
+                    </article>
+
+                    <article class="demo-card reveal" id="graftDemo">
+                        <header class="demo-head">
+                            <span class="demo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M6 8.5v1a4 4 0 0 0 4 4h4a4 4 0 0 0 4 -4v-1"/><path d="M12 13.5v2"/></svg></span>
+                            <div>
+                                <h2>Mini Graft Scan</h2>
+                                <p>How Graft reads a repository: context-budgeted chunks, parallel sub-agents, and a merged feature blueprint. Watch it scan God View itself.</p>
+                            </div>
+                        </header>
+                        <div class="graft-bar">
+                            <span class="graft-repo mono">melvinthoompunkal/God_View</span>
+                            <button type="button" id="graftRunBtn" class="btn btn-primary btn-sm">Run scan</button>
+                        </div>
+                        <canvas id="graftCanvas" aria-label="Animated diagram of the Graft pipeline"></canvas>
+                        <p class="graft-status mono" id="graftStatus">Idle. Press Run scan.</p>
+                        <p class="demo-note">Simulated representation of the Graft pipeline.</p>
+                    </article>
 
                     <article class="demo-card reveal" id="blockchainDemo">
                         <header class="demo-head">
