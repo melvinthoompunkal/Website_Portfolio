@@ -78,8 +78,8 @@
                 if (currentView !== "playground") return;
                 fitGlobe();
                 startGlobe();
-                fitGraft();
                 startGraftLoop();
+                autoScan();
             });
         } else {
             stopGlobe();
@@ -431,15 +431,10 @@
 
     const easeOut = k => 1 - Math.pow(1 - k, 3);
     const easeIO = k => k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-    function rr(ctx, x, y, w, h, r) {
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.arcTo(x + w, y, x + w, y + h, r);
-        ctx.arcTo(x + w, y + h, x, y + h, r);
-        ctx.arcTo(x, y + h, x, y, r);
-        ctx.arcTo(x, y, x + w, y, r);
-        ctx.closePath();
-    }
+    const quadPoint = (a, c, b, k) => {
+        const u = 1 - k;
+        return { x: u * u * a.x + 2 * u * k * c.x + k * k * b.x, y: u * u * a.y + 2 * u * k * c.y + k * k * b.y };
+    };
     function fitCanvasDPR(cv) {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
         const w = cv.clientWidth, h = cv.clientHeight;
@@ -722,196 +717,266 @@ const pgState = { globeOn: false, globeRaf: 0, gLast: 0, rot: 0, eventAccum: 150
     const graftBtn = $("#graftRunBtn");
     const graftStatus = $("#graftStatus");
 
-    const GF_FILES = ["api/main.py", "api/routes.py", "stream/worker.py", "stream/hub.py", "ingest/gdelt.py", "ingest/markets.py", "geo/postgis.py", "web/Globe.jsx"];
-    const GF_CHUNKS = [{ id: "C1", files: [0, 1], agent: 0 }, { id: "C2", files: [2, 3], agent: 1 }, { id: "C3", files: [4, 5, 6], agent: 1 }, { id: "C4", files: [7], agent: 2 }];
-    const GF_AGENTS = ["A1 api", "A2 core", "A3 ui"];
+    const GF_CHUNKS = ["C1", "C2", "C3", "C4"];
+    const GF_CHUNK_AGENT = [0, 1, 1, 2];
+    const GF_AGENTS = ["A1", "A2", "A3"];
     const GF_FEATURES = [
-        { label: "FastAPI app", c: 0, a: 0 }, { label: "REST routes", c: 0, a: 0 },
-        { label: "Kafka consumer", c: 1, a: 1 }, { label: "Redis publish", c: 1, a: 1 }, { label: "WebSocket hub", c: 1, a: 1 },
-        { label: "GDELT fetcher", c: 2, a: 1 }, { label: "Market poller", c: 2, a: 1 }, { label: "Normalizer", c: 2, a: 1 }, { label: "PostGIS lookup", c: 2, a: 1 },
-        { label: "React mount", c: 3, a: 2 }, { label: "WebGL globe", c: 3, a: 2 }, { label: "GeoJSON layer", c: 3, a: 2 }
+        { label: "FastAPI app", c: 0, ch: 0 }, { label: "REST routes", c: 0, ch: 0 },
+        { label: "Kafka consumer", c: 1, ch: 1 }, { label: "Redis publish", c: 1, ch: 1 }, { label: "WebSocket hub", c: 1, ch: 1 },
+        { label: "GDELT fetcher", c: 2, ch: 2 }, { label: "Market poller", c: 2, ch: 2 }, { label: "Normalizer", c: 2, ch: 2 }, { label: "PostGIS lookup", c: 2, ch: 2 },
+        { label: "React mount", c: 3, ch: 3 }, { label: "WebGL globe", c: 3, ch: 3 }, { label: "GeoJSON layer", c: 3, ch: 3 }
     ];
     const GF_CLUSTERS = ["API", "STREAM", "INGEST", "WEB"];
     const GF_EDGES = [[0, 1], [2, 3], [3, 4], [4, 9], [5, 6], [6, 7], [7, 11], [10, 11], [2, 5], [8, 11]];
     const GF_STATUS = [
         [0, "Reading God_View repository"],
-        [700, "Chunking within 8k-token budget"],
-        [1700, "Dispatching 4 chunks to 3 sub-agents"],
-        [3200, "Sub-agents extracting features"],
-        [6800, "Linking feature graph"],
-        [7900, "Blueprint ready. 12 features across 4 modules."]
+        [500, "Chunking repository into context-budget windows"],
+        [1400, "Dispatching 4 chunks to 3 sub-agents"],
+        [2700, "Sub-agents extracting features"],
+        [6000, "Linking feature graph"],
+        [7200, "Blueprint ready. 12 features across 4 modules."]
     ];
-    const GF_TOTAL = 7900;
+    const GF_TOTAL = 7200;
 
-    const gf = { on: false, raf: 0, t0: 0, running: false, done: false, statusIdx: -1 };
+    const gf = { on: false, raf: 0, t0: 0, running: false, done: false, statusIdx: -1, autoDone: false };
 
     function gfLayout(W, H) {
-        const padL = Math.max(12, W * 0.03);
-        const colFileX = padL + 62;
-        const fileTop = H * 0.10, fileRowH = Math.min(30, H * 0.8 / GF_FILES.length);
-        const chunkX = W * 0.27, chunkRowY = i => H * (0.16 + i * (H * 0.68 / GF_CHUNKS.length));
-        const agentX = W * 0.46, agentRowY = i => H * (0.24 + i * (H * 0.52 / GF_AGENTS.length));
-        const ccx = W * 0.78, ccy = H * 0.48;
-        const S = Math.min(H * 0.26, W * 0.105);
-        const centers = [[ccx, ccy - S], [ccx - S * 1.25, ccy], [ccx + S * 1.25, ccy], [ccx, ccy + S]];
-        const slots = [];
-        const perCluster = {};
-        GF_FEATURES.forEach(f => { (perCluster[f.c] = perCluster[f.c] || []).push(f); });
-        Object.values(perCluster).forEach(group => group.forEach((f, j) => {
-            const ang = -Math.PI / 2 + (j / group.length) * Math.PI * 2;
-            slots[GF_FEATURES.indexOf(f)] = {
-                x: centers[f.c][0] + Math.cos(ang) * S * 0.52,
-                y: centers[f.c][1] + Math.sin(ang) * S * 0.40
-            };
-        }));
-        return { padL, colFileX, fileTop, fileRowH, chunkX, chunkRowY, agentX, agentRowY, centers, slots, S };
-    }
-
-    function gfChip(ctx, x, y, text, opts = {}) {
-        ctx.font = "10px 'JetBrains Mono', monospace";
-        const w = Math.max(ctx.measureText(text).width + 16, opts.minW || 44), h = opts.h || 20;
-        rr(ctx, x - w / 2, y - h / 2, w, h, 6);
-        ctx.fillStyle = opts.fill || PAL.chip;
-        ctx.fill();
-        ctx.strokeStyle = opts.border || PAL.chipBorder;
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        ctx.fillStyle = opts.color || PAL.soft;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(text, x, y + 0.5);
-        return w;
-    }
-
-    function quadPoint(p0, p1, p2, k) {
-        const u = 1 - k;
-        return { x: u * u * p0.x + 2 * u * k * p1.x + k * k * p2.x, y: u * u * p0.y + 2 * u * k * p1.y + k * k * p2.y };
+        const cx = W / 2, cy = H / 2;
+        const R = Math.min(W, H);
+        const r1 = Math.min(Math.max(R * 0.24, 50), 92);
+        const r2 = Math.min(Math.max(R * 0.34, 72), 132);
+        const rOut = Math.max(60, Math.min(R * 0.55, H / 2 - 42, (W / 2 - 91) / 0.88));
+        const hubR = Math.max(20, R * 0.062);
+        const D2R = Math.PI / 180;
+        const nodes = { hub: { x: cx, y: cy, r: hubR } };
+        const chunkAng = [-135, -45, 45, 135];
+        GF_CHUNKS.forEach((cid, i) => {
+            const a = chunkAng[i] * D2R;
+            nodes["c" + i] = { x: cx + Math.cos(a) * r1, y: cy + Math.sin(a) * r1, r: 13 };
+        });
+        const agentDef = [[180, 30], [0, 58], [90, 38]];
+        GF_AGENTS.forEach((_, i) => {
+            const a = agentDef[i][0] * D2R;
+            nodes["a" + i] = { x: cx + Math.cos(a) * r2, y: cy + Math.sin(a) * r2, r: 15 };
+        });
+        GF_AGENTS.forEach((_, ai) => {
+            const mine = GF_FEATURES.map((fe, fi) => GF_CHUNK_AGENT[fe.ch] === ai ? fi : -1).filter(fi => fi >= 0);
+            const [baseDeg, halfDeg] = agentDef[ai];
+            mine.forEach((fi, j) => {
+                const off = mine.length === 1 ? 0 : -halfDeg + (2 * halfDeg) * j / (mine.length - 1);
+                const inner = ai === 2 ? j === 2 : j % 2 === 0;
+                const rad = inner ? rOut * 0.8 : rOut;
+                const a = (baseDeg + off) * D2R;
+                nodes["f" + fi] = { x: cx + Math.cos(a) * rad, y: cy + Math.sin(a) * rad, r: 4 };
+            });
+        });
+        return { cx, cy, nodes };
     }
 
     function drawGraft(t, ts) {
         const f = fitCanvasDPR(graftCanvas);
-        if (!f) return;
+        if (!f || t < 0) return;
         const { ctx, W, H } = f;
         const L = gfLayout(W, H);
         ctx.clearRect(0, 0, W, H);
-        ctx.font = "10px 'JetBrains Mono', monospace";
 
-        GF_FILES.forEach((name, i) => {
-            const k = easeOut(Math.min(Math.max((t - i * 70) / 450, 0), 1));
-            if (k <= 0) return;
-            const y = L.fileTop + i * L.fileRowH;
-            let alpha = k;
-            let x = L.colFileX, yy = y;
-            const ci = GF_CHUNKS.findIndex(c => c.files.includes(i));
-            if (ci >= 0) {
-                const ck = Math.min(Math.max((t - (800 + ci * 180)) / 500, 0), 1);
-                if (ck > 0) {
-                    const e = easeIO(ck);
-                    x = x + (L.chunkX - x) * e;
-                    yy = y + (L.chunkRowY(ci) - y) * e;
-                    alpha = k * (1 - e);
-                }
+        const drifting = gf.done && !reducedMotion;
+        const N = {};
+        let di = 0;
+        for (const id in L.nodes) {
+            const n = L.nodes[id];
+            const ph = di * 1.9;
+            N[id] = { x: n.x, y: n.y, r: n.r, dx: drifting ? Math.sin(ts / 900 + ph) * 1.5 : 0, dy: drifting ? Math.cos(ts / 1100 + ph * 0.8) * 1.5 : 0 };
+            di++;
+        }
+
+        const chunkMD = GF_CHUNKS.map((_, ci) => Math.min(Math.max((t - (1500 + ci * 160)) / 550, 0), 1));
+        GF_CHUNKS.forEach((_, ci) => {
+            const md = chunkMD[ci];
+            if (md > 0 && md < 1) {
+                const e = easeIO(md);
+                const n = N["c" + ci], ag = N["a" + GF_CHUNK_AGENT[ci]];
+                n.x += (ag.x + ag.dx - n.x) * e;
+                n.y += (ag.y + ag.dy - n.y) * e;
             }
-            ctx.globalAlpha = alpha;
-            ctx.fillStyle = PAL.faint;
-            ctx.textAlign = "left";
-            ctx.textBaseline = "middle";
-            ctx.fillText(name, x - 56, yy);
-            ctx.globalAlpha = 1;
         });
 
-        GF_CHUNKS.forEach((c, ci) => {
-            const k = easeOut(Math.min(Math.max((t - (800 + ci * 180)) / 500, 0), 1));
+        const featK = GF_FEATURES.map((_, fi) => Math.min(Math.max((t - (2700 + fi * 220)) / 600, 0), 1));
+
+        const line = (ax, ay, bx, by, style, width, alpha) => {
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(bx, by);
+            ctx.strokeStyle = style;
+            ctx.lineWidth = width;
+            ctx.globalAlpha = alpha;
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+        };
+
+        GF_CHUNKS.forEach((_, ci) => {
+            const kg = Math.min(Math.max((t - (520 + ci * 130)) / 300, 0), 1);
+            const md = chunkMD[ci];
+            if (kg <= 0 || md >= 1) return;
+            const n = N["c" + ci], h = N.hub;
+            const frac = kg * (1 - easeIO(md));
+            const tx = h.x + (n.x + n.dx - h.x) * frac, ty = h.y + (n.y + n.dy - h.y) * frac;
+            line(h.x, h.y, tx, ty, PAL.chipBorder, 1, Math.min(1, kg * 3));
+            if (md > 0) { const ag = N["a" + GF_CHUNK_AGENT[ci]]; line(n.x + n.dx, n.y + n.dy, ag.x + ag.dx, ag.y + ag.dy, PAL.accent, 1, Math.min(1, md * 5) * (1 - md * 0.35)); }
+        });
+
+        GF_AGENTS.forEach((_, ai) => {
+            const ka = Math.min(Math.max((t - (1450 + ai * 120)) / 320, 0), 1);
+            if (ka <= 0) return;
+            const n = N["a" + ai];
+            line(N.hub.x, N.hub.y, n.x + n.dx, n.y + n.dy, PAL.chipBorder, 1, ka);
+        });
+
+        GF_FEATURES.forEach((fe, fi) => {
+            const k = featK[fi];
             if (k <= 0) return;
-            const home = { x: L.chunkX, y: L.chunkRowY(ci) };
-            const ag = { x: L.agentX, y: L.agentRowY(c.agent) };
-            const mk = Math.min(Math.max((t - (1700 + ci * 200)) / 600, 0), 1);
-            const pos = mk > 0
-                ? quadPoint(home, { x: (home.x + ag.x) / 2, y: (home.y + ag.y) / 2 - 26 }, ag, easeIO(mk))
-                : home;
-            const alpha = mk > 0 ? 1 - mk * 0.85 : k;
-            ctx.globalAlpha = Math.max(alpha, 0);
-            gfChip(ctx, pos.x, pos.y, `${c.id} (${c.files.length})`, { color: PAL.accent, border: PAL.accent });
+            const ap = N["a" + GF_CHUNK_AGENT[fe.ch]];
+            const fp = N["f" + fi];
+            const ax = ap.x + ap.dx, ay = ap.y + ap.dy;
+            const dxs = fp.x + fp.dx - ax, dys = fp.y + fp.dy - ay;
+            const l = Math.hypot(dxs, dys) || 1;
+            const sgn = fi % 2 ? 1 : -1;
+            const cp = { x: (ax + fp.x) / 2 - dys / l * l * 0.16 * sgn, y: (ay + fp.y) / 2 + dxs / l * l * 0.16 * sgn };
+            if (k < 1) {
+                const tip = quadPoint(ap, cp, fp, easeIO(k));
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                ctx.quadraticCurveTo(cp.x, cp.y, tip.x, tip.y);
+                ctx.strokeStyle = PAL.edgeA + "0.5)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(tip.x, tip.y, 3, 0, Math.PI * 2);
+                ctx.fillStyle = PAL.accent;
+                ctx.fill();
+            } else {
+                ctx.beginPath();
+                ctx.moveTo(ax, ay);
+                ctx.quadraticCurveTo(cp.x, cp.y, fp.x + fp.dx, fp.y + fp.dy);
+                ctx.strokeStyle = PAL.edgeA + "0.28)";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        });
+
+        if (t >= 6000) {
+            GF_EDGES.forEach(([a, b], ei) => {
+                const kw = Math.min(Math.max((t - (6000 + ei * 45)) / 450, 0), 1);
+                if (kw <= 0) return;
+                const pa = N["f" + a], pb = N["f" + b];
+                const dx = pb.x - pa.x, dy = pb.y - pa.y;
+                const len = Math.hypot(dx, dy) || 1;
+                const sgn = ei % 2 ? 1 : -1;
+                ctx.beginPath();
+                ctx.moveTo(pa.x + pa.dx, pa.y + pa.dy);
+                ctx.quadraticCurveTo((pa.x + pb.x) / 2 - dy / len * len * 0.12 * sgn, (pa.y + pb.y) / 2 + dx / len * len * 0.12 * sgn, pb.x + pb.dx, pb.y + pb.dy);
+                ctx.strokeStyle = PAL.edgeA + "0.35)";
+                ctx.globalAlpha = kw;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+            });
+        }
+
+        if (t >= 6400) {
+            const kc = Math.min((t - 6400) / 500, 1);
+            ctx.font = "9px 'JetBrains Mono', monospace";
+            ctx.fillStyle = PAL.faint;
+            ctx.globalAlpha = kc * 0.9;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            GF_CLUSTERS.forEach((nm, ci) => {
+                let sx = 0, sy = 0, n = 0;
+                GF_FEATURES.forEach((fe, fi) => { if (fe.c === ci) { sx += L.nodes["f" + fi].x; sy += L.nodes["f" + fi].y; n++; } });
+                if (!n) return;
+                const mx = sx / n - L.cx, my = sy / n - L.cy;
+                const ml = Math.hypot(mx, my) || 1;
+                ctx.fillText(nm, L.cx + mx / ml * (ml + 22), L.cy + my / ml * (ml + 22));
+            });
+            ctx.globalAlpha = 1;
+        }
+
+        const khub = easeOut(Math.min(t / 450, 1));
+        if (khub > 0) {
+            const h = N.hub;
+            ctx.beginPath();
+            ctx.arc(h.x, h.y, h.r * (0.6 + 0.4 * khub), 0, Math.PI * 2);
+            ctx.fillStyle = PAL.chip;
+            ctx.fill();
+            ctx.strokeStyle = PAL.accent;
+            ctx.lineWidth = 1.6;
+            ctx.stroke();
+            ctx.fillStyle = PAL.accent;
+            ctx.font = "600 10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.globalAlpha = Math.max(0, (khub - 0.5) * 2);
+            ctx.fillText("God_View", h.x, h.y);
+            ctx.globalAlpha = 1;
+        }
+
+        GF_CHUNKS.forEach((cid, ci) => {
+            const kp = easeOut(Math.min(Math.max((t - (420 + ci * 130)) / 350, 0), 1));
+            const md = chunkMD[ci];
+            if (kp <= 0 || md >= 1) return;
+            const n = N["c" + ci];
+            ctx.globalAlpha = kp * (1 - md * 0.6);
+            ctx.beginPath();
+            ctx.arc(n.x + n.dx, n.y + n.dy, 13 * kp, 0, Math.PI * 2);
+            ctx.fillStyle = PAL.chip;
+            ctx.fill();
+            ctx.strokeStyle = PAL.accent;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+            ctx.fillStyle = PAL.accent;
+            ctx.font = "600 9px 'JetBrains Mono', monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(cid, n.x + n.dx, n.y + n.dy + 0.5);
             ctx.globalAlpha = 1;
         });
 
         GF_AGENTS.forEach((name, ai) => {
-            const k = easeOut(Math.min(Math.max((t - (1600 + ai * 140)) / 400, 0), 1));
-            if (k <= 0) return;
-            const busy = GF_CHUNKS.some((c, ci) =>
-                (c.agent === ai && t > 1700 + ci * 200 && t < 2300 + ci * 200)) ||
-                GF_FEATURES.some((fe, fi) => fe.a === ai && t > 3200 + fi * 260 && t < 3820 + fi * 260);
-            gfChip(ctx, L.agentX, L.agentRowY(ai), name, {
-                minW: 76, h: 24,
-                border: busy ? PAL.accent : PAL.chipBorder,
-                color: busy ? PAL.accent : PAL.soft,
-                fill: PAL.chip
-            });
-        });
-
-        const drift = gf.done && !reducedMotion;
-        GF_FEATURES.forEach((fe, fi) => {
-            const start = 3200 + fi * 260, dur = 620;
-            const k = Math.min(Math.max((t - start) / dur, 0), 1);
-            if (k <= 0) return;
-            const slot = L.slots[fi];
-            let x = slot.x, y = slot.y;
-            if (drift) { x += Math.sin(ts / 900 + fi * 1.7) * 2; y += Math.cos(ts / 1100 + fi) * 2; }
-            if (k < 1) {
-                const from = { x: L.agentX, y: L.agentRowY(fe.a) };
-                const mid = { x: (from.x + slot.x) / 2, y: (from.y + slot.y) / 2 + (fi % 2 ? 24 : -24) };
-                const p = quadPoint(from, mid, slot, easeIO(k));
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-                ctx.fillStyle = PAL.accent;
-                ctx.fill();
-                return;
-            }
-            const ek = easeOut(k);
+            const ka = easeOut(Math.min(Math.max((t - (1450 + ai * 120)) / 320, 0), 1));
+            if (ka <= 0) return;
+            const n = N["a" + ai];
+            const busy = GF_CHUNKS.some((_, ci) => GF_CHUNK_AGENT[ci] === ai && t > 1500 + ci * 160 && t < 2150 + ci * 160) ||
+                GF_FEATURES.some((_, fi) => GF_CHUNK_AGENT[GF_FEATURES[fi].ch] === ai && t > 2700 + fi * 220 && t < 3350 + fi * 220);
             ctx.beginPath();
-            ctx.arc(x, y, 2.6, 0, Math.PI * 2);
-            ctx.fillStyle = PAL.accent;
-            ctx.globalAlpha = ek;
+            ctx.arc(n.x + n.dx, n.y + n.dy, 15 * ka, 0, Math.PI * 2);
+            ctx.fillStyle = PAL.chip;
             ctx.fill();
-            ctx.globalAlpha = ek;
-            ctx.fillStyle = PAL.soft;
-            ctx.font = "10px 'JetBrains Mono', monospace";
-            ctx.textAlign = "left";
-            ctx.textBaseline = "middle";
-            ctx.fillText(fe.label, x + 7, y);
-            ctx.globalAlpha = 1;
-        });
-
-        GF_EDGES.forEach(([a, b], ei) => {
-            const ka = Math.min(Math.max((t - (3200 + a * 260 + 620)) / 300, 0), 1);
-            const kb = Math.min(Math.max((t - (3200 + b * 260 + 620)) / 300, 0), 1);
-            const ke = Math.min(Math.max((t - (6800 + ei * 55)) / 500, 0), 1);
-            if (ke <= 0 || ka < 1 || kb < 1) return;
-            const pa = L.slots[a], pb = L.slots[b];
-            ctx.beginPath();
-            ctx.moveTo(pa.x, pa.y);
-            ctx.lineTo(pb.x, pb.y);
-            ctx.strokeStyle = PAL.edgeA + "0.35)";
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = busy ? PAL.accent : PAL.chipBorder;
+            ctx.lineWidth = busy ? 1.6 : 1.2;
             ctx.stroke();
+            ctx.fillStyle = busy ? PAL.accent : PAL.soft;
+            ctx.font = "600 10px 'JetBrains Mono', monospace";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(name, n.x + n.dx, n.y + n.dy + 0.5);
         });
 
-        if (t > 2000) {
-            ctx.setLineDash([3, 4]);
-            ctx.strokeStyle = PAL.edgeA + "0.18)";
-            L.centers.forEach((c, ci) => {
-                const members = GF_FEATURES.filter(fe => fe.c === ci).length;
-                if (!members || t < 3200) return;
-                ctx.beginPath();
-                ctx.ellipse(c[0], c[1], L.S * 0.72, L.S * 0.58, 0, 0, Math.PI * 2);
-                ctx.stroke();
-                ctx.fillStyle = PAL.faint;
-                ctx.font = "9px 'JetBrains Mono', monospace";
-                ctx.textAlign = "center";
-                ctx.fillText(GF_CLUSTERS[ci], c[0], c[1] + L.S * 0.78);
-            });
-            ctx.setLineDash([]);
-        }
+        GF_FEATURES.forEach((fe, fi) => {
+            const k = featK[fi];
+            if (k < 1) return;
+            const n = N["f" + fi];
+            ctx.beginPath();
+            ctx.arc(n.x + n.dx, n.y + n.dy, 4, 0, Math.PI * 2);
+            ctx.fillStyle = PAL.accent;
+            ctx.fill();
+            const dxn = n.x - L.cx, dyn = n.y - L.cy;
+            const dl = Math.hypot(dxn, dyn) || 1;
+            ctx.font = "10px 'JetBrains Mono', monospace";
+            ctx.textAlign = dxn >= 0 ? "left" : "right";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = PAL.soft;
+            ctx.fillText(fe.label, n.x + n.dx + dxn / dl * 11, n.y + n.dy + dyn / dl * 11);
+        });
 
         const si = GF_STATUS.reduce((acc, s, i) => t >= s[0] ? i : acc, 0);
         if ((gf.running || gf.done) && si !== gf.statusIdx) { gf.statusIdx = si; graftStatus.textContent = GF_STATUS[si][1]; }
@@ -920,7 +985,7 @@ const pgState = { globeOn: false, globeRaf: 0, gLast: 0, rot: 0, eventAccum: 150
     function graftFrame(ts) {
         if (!gf.on) return;
         const t = reducedMotion ? GF_TOTAL : Math.min(ts - gf.t0, GF_TOTAL);
-        drawGraft(t, ts);
+        try { drawGraft(t, ts); } catch (err) { console.error("graft draw error", err); }
         if (gf.running && t >= GF_TOTAL) {
             gf.running = false;
             gf.done = true;
@@ -930,7 +995,9 @@ const pgState = { globeOn: false, globeRaf: 0, gLast: 0, rot: 0, eventAccum: 150
         gf.raf = requestAnimationFrame(graftFrame);
     }
 
-    function fitGraft() { if (graftCanvas) drawGraft(reducedMotion || gf.done ? GF_TOTAL : (gf.running ? performance.now() - gf.t0 : -1), performance.now()); }
+    function fitGraft() {
+        if (graftCanvas) drawGraft(reducedMotion || gf.done ? GF_TOTAL : (gf.running ? performance.now() - gf.t0 : -1), performance.now());
+    }
     function startGraftLoop() {
         if (!graftCanvas || gf.on) return;
         gf.on = true;
@@ -941,18 +1008,24 @@ const pgState = { globeOn: false, globeRaf: 0, gLast: 0, rot: 0, eventAccum: 150
         cancelAnimationFrame(gf.raf);
     }
 
-    if (graftBtn) {
-        graftBtn.addEventListener("click", () => {
-            if (gf.running) return;
-            gf.running = true;
-            gf.done = false;
-            gf.statusIdx = -1;
-            gf.t0 = performance.now();
-            graftBtn.disabled = true;
-            graftBtn.textContent = "Scanning";
-            if (!gf.on) startGraftLoop();
-        });
+    function startScan() {
+        if (gf.running) return;
+        gf.running = true;
+        gf.done = false;
+        gf.statusIdx = -1;
+        gf.t0 = performance.now();
+        graftBtn.disabled = true;
+        graftBtn.textContent = "Scanning";
+        if (!gf.on) startGraftLoop();
     }
+
+    function autoScan() {
+        if (gf.autoDone || gf.running || gf.done) return;
+        gf.autoDone = true;
+        startScan();
+    }
+
+    if (graftBtn) graftBtn.addEventListener("click", startScan);
 
     document.addEventListener("visibilitychange", () => {
         if (document.hidden) { stopGlobe(); stopGrafLoop(); }
